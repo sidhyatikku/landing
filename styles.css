@@ -1,0 +1,178 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+
+  html {
+    background-color: #FCEFE3;
+  }
+
+  body {
+        font-family: 'Manrope', sans-serif;
+        color: #3D3D3D;
+        width: 100%;
+        margin: 0;
+        font-size: 18px;
+        padding-bottom: 10vh;
+    }
+
+    .container {
+      width: fit-content;
+    }
+
+    .intro {
+        display: flex;
+        flex-direction: column;
+        row-gap: 0.5vh;
+    }
+
+    .icon-main {
+      width: auto;
+      height: 30px;
+    }
+
+    .name-main {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      align-items: baseline;
+    }
+
+
+    .intro-title {
+        font-size: 35px;
+        font-weight: 600;
+    }
+
+    .link-title {
+        display: flex;
+        flex-direction: row;
+        gap: 5px;
+        font-size: 20px;
+        font-weight: 600;
+        align-items: baseline;
+    }
+
+    .icon-link {
+      width: auto;
+      height: 16px;
+    }
+
+    .subtext {
+        color: #A8907A;
+        font-size: 16px;
+    }
+    .links a {
+        text-decoration: none;
+        color: #816040;
+        font-weight: 600;
+    }
+
+    .links {
+      display: flex;
+      flex-direction: row;
+      gap: 5vh;
+    }
+
+    .links a:hover {
+        text-decoration: underline;
+    }
+
+    .subtext a {
+      color: #A8907A;
+      text-decoration: none;
+    }
+
+    .subtext a:hover {
+      text-decoration: underline;
+    }
+
+    .section-intro {
+      display: flex;
+      flex-direction: column;
+      row-gap: 10vh;
+      padding-top: 20vh;
+      padding-left: 50vw;
+    }
+
+    .section-mid-intro {
+      display: flex;
+      flex-direction: column;
+      row-gap: 5vh;
+    }
+
+    .intro-text {
+      max-width: 420px;
+    }
+
+    .section1 {
+      display: flex;
+      flex-direction: column;
+      row-gap: 3vh;
+    }
+
+    .section2 {
+      display: flex;
+      flex-direction: column;
+      row-gap: 3vh;
+    }
+
+    .section3 {
+      display: flex;
+      flex-direction: column;
+      row-gap: 3vh;
+    }
+
+    .section-title {
+      font-size: 16px;
+      color: #A8907A;
+      font-weight: 700;
+    }
+
+    .exp {
+      display: flex;
+      flex-direction: column;
+      row-gap: 3vh;
+    }
+
+    .exp2 {
+      display: flex;
+      flex-direction: column;
+      row-gap: 1vh;
+    }
+    .section h3 {
+        font-size: 16px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .item {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .job {
+      font-weight: 600;
+    }
+
+    .year, .city {
+      font-weight: 500;
+      color: #A8907A;
+    }
+
+    .title {
+      width: 20vw;
+      font-weight: 700;
+      min-width: 200px;
+    }
+
+    .title2 {
+      width: 50vw;
+      font-weight: 800;
+    }
+
+    .item strong {
+        display: block;
+        font-weight: 600;
+    }
+    .item span {
+        color: #777;
+        font-size: 14px;
+    }
