@@ -101,6 +101,7 @@
 
     .intro-text {
       max-width: 420px;
+      color: #997049;
     }
 
     .section1 {
@@ -176,3 +177,83 @@
         color: #777;
         font-size: 14px;
     }
+
+
+    /* desktop small */
+@media only screen and (max-width: 1250px) and (orientation: landscape) {
+  .section-intro {
+    padding-left: 40vw;
+  }
+      }
+
+@media only screen and (max-height: 700px) and (orientation: portrait) {
+  .section-intro {
+    margin-left: 5vw;
+    margin-right: 5vw;
+    padding-left: 0vw;
+    row-gap: 10vh;
+  }
+
+  .container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+  }
+
+  .item {
+      display: flex;
+      flex-direction: column;
+      gap: 1vh;
+  }
+
+  .title {
+    width: auto;
+  }
+
+  .title2 {
+    width: auto;
+  }
+}
+
+    /* iphone 12 pro */
+@media only screen and (min-height:701px) and (orientation: portrait){
+  .section-intro {
+    margin-left: 5vw;
+    margin-right: 5vw;
+    padding-left: 0vw;
+    row-gap: 10vh;
+  }
+
+  .container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+  }
+
+  .item {
+      display: flex;
+      flex-direction: column;
+      gap: 1vh;
+  }
+
+  .title {
+    width: auto;
+  }
+
+  .title2 {
+    width: auto;
+  }
+
+}
