@@ -1,23 +1,27 @@
-<urlset>
-<url>
-<loc>https://sidhyatikku.com/</loc>
-<lastmod>2025-02-03T20:10:15+00:00</lastmod>
-<priority>1.0</priority>
-</url>
-<loc>https://portfolio.sidhyatikku.com/</loc>
-<lastmod>2025-02-03T20:10:15+00:00</lastmod>
-<priority>0.8</priority>
-</url>
-<loc>https://photography.sidhyatikku.com/</loc>
-<lastmod>2025-02-03T20:10:15+00:00</lastmod>
-<priority>0.7</priority>
-</url>
-<loc>https://x.sidhyatikku.com/</loc>
-<lastmod>2025-02-03T20:10:15+00:00</lastmod>
-<priority>0.5</priority>
-</url>
-<loc>https://linkedin.sidhyatikku.com/</loc>
-<lastmod>2025-02-03T20:10:15+00:00</lastmod>
-<priority>0.5</priority>
-</url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://sidhyatikku.com/</loc>
+        <lastmod>2025-02-03T20:10:15+00:00</lastmod>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://portfolio.sidhyatikku.com/</loc>
+        <lastmod>2025-02-03T20:10:15+00:00</lastmod>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://photography.sidhyatikku.com/</loc>
+        <lastmod>2025-02-03T20:10:15+00:00</lastmod>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://x.sidhyatikku.com/</loc>
+        <lastmod>2025-02-03T20:10:15+00:00</lastmod>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://linkedin.sidhyatikku.com/</loc>
+        <lastmod>2025-02-03T20:10:15+00:00</lastmod>
+        <priority>0.5</priority>
+    </url>
 </urlset>
