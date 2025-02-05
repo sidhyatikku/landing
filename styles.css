@@ -214,7 +214,7 @@
   .item {
       display: flex;
       flex-direction: column;
-      gap: 1vh;
+      gap: 0vh;
   }
 
   .title {
@@ -254,7 +254,7 @@
   .item {
       display: flex;
       flex-direction: column;
-      gap: 0.5vh;
+      gap: 0vh;
   }
 
   .title {
