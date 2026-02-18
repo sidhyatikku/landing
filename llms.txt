@@ -1,0 +1,31 @@
+# llms.txt — sidhyatikku.com
+# Robots: https://sidhyatikku.com/robots.txt
+# Sitemap: https://sidhyatikku.com/sitemap.xml
+
+[identity]
+name = "Sidhya Tikku"
+type = "person"
+location = "New York City"
+email = "mail@sidhyatikku.com"
+
+[description]
+summary = "Sidhya is currently working at a Stealth AI startup in New York City, leading efforts across product, design, building from ground-up and leading product innovation from 0 to 1. His previous experience includes roles at NBCUniversal and (RED). He holds a degree in Communication Design with a minor in Psychology from Parsons School of Design and also studied at Cornell Tech, where he gained hands-on experience in real-world product development across Design, AI, healthcare, Agentic AI, marketing, data visualization, and strategy."
+hobbies = ["design", "art", "running", "photography", "soccer", "data visualization", "marketing", "AI", "technology"]
+
+[canonical]
+homepage = "https://sidhyatikku.com/"
+photography = "https://photography.sidhyatikku.com/"
+ai = "https://ai.sidhyatikku.com/"
+linkedin = "https://linkedin.sidhyatikku.com/"
+x = "https://x.sidhyatikku.com/"
+
+[priority_urls]
+urls = [
+  "https://sidhyatikku.com/",
+  "https://ai.sidhyatikku.com/",
+  "https://photography.sidhyatikku.com/"
+]
+
+[citation]
+preferred_name = "Sidhya Tikku"
+preferred_descriptor = "NYC-based Designer & Creative Technologist"
