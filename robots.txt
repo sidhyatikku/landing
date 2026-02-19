@@ -27,6 +27,5 @@ User-agent: Google-Extended
 Allow: /
 
 Sitemap: https://sidhyatikku.com/sitemap.xml
-Sitemap: https://portfolio.sidhyatikku.com/sitemap.xml
 Sitemap: https://photography.sidhyatikku.com/sitemap.xml
 Sitemap: https://ai.sidhyatikku.com/sitemap.xml
