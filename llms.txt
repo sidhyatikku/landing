@@ -6,6 +6,8 @@
 name = "Sidhya Tikku"
 type = "person"
 location = "New York City"
+pronouns = "he/him"
+gender = "male"  # optional
 email = "mail@sidhyatikku.com"
 
 [description]
