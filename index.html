@@ -12,8 +12,7 @@
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-
-        gtag('config', 'G-8WGNZWHQKE');
+        gtag('config', 'G-8WGNZWHQKE', { send_page_view: true });
       </script>
 
 
@@ -143,5 +142,107 @@
 
 
     </div>
+
+<script>
+  (function () {
+    var GA_ID = 'G-8WGNZWHQKE';
+
+    // Helper to fire a GA4 event safely
+    function gaEvent(eventName, params) {
+      if (typeof gtag === 'function') {
+        gtag('event', eventName, params);
+      }
+    }
+
+    // -------------------------------------------------------
+    // 1. Outbound link clicks (Portfolio, Photography, AI, LinkedIn, X)
+    // -------------------------------------------------------
+    var outboundLinks = document.querySelectorAll('.links a[href]');
+    outboundLinks.forEach(function (link) {
+      link.addEventListener('click', function () {
+        gaEvent('outbound_link_click', {
+          link_text: link.textContent.trim(),
+          link_url: link.href,
+          link_domain: new URL(link.href).hostname
+        });
+      });
+    });
+
+    // -------------------------------------------------------
+    // 2. Email link click
+    // -------------------------------------------------------
+    var emailLink = document.querySelector('a[href^="mailto:"]');
+    if (emailLink) {
+      emailLink.addEventListener('click', function () {
+        gaEvent('email_click', {
+          email_address: emailLink.href.replace('mailto:', '')
+        });
+      });
+    }
+
+    // -------------------------------------------------------
+    // 3. Section visibility (WORK, EDUCATION, AWARDS)
+    // -------------------------------------------------------
+    var sections = [
+      { el: document.querySelector('.section1'), name: 'work' },
+      { el: document.querySelector('.section2'), name: 'education' },
+      { el: document.querySelector('.section3'), name: 'awards' }
+    ];
+
+    if ('IntersectionObserver' in window) {
+      var sectionObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var section = sections.find(function (s) { return s.el === entry.target; });
+            if (section) {
+              gaEvent('section_view', { section_name: section.name });
+              sectionObserver.unobserve(entry.target);
+            }
+          }
+        });
+      }, { threshold: 0.3 });
+
+      sections.forEach(function (s) {
+        if (s.el) sectionObserver.observe(s.el);
+      });
+    }
+
+    // -------------------------------------------------------
+    // 4. Scroll depth milestones (25%, 50%, 75%, 100%)
+    // -------------------------------------------------------
+    var scrollMilestones = [25, 50, 75, 100];
+    var firedMilestones = {};
+
+    window.addEventListener('scroll', function () {
+      var scrollTop = window.scrollY || document.documentElement.scrollTop;
+      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (docHeight <= 0) return;
+      var pct = Math.round((scrollTop / docHeight) * 100);
+
+      scrollMilestones.forEach(function (m) {
+        if (!firedMilestones[m] && pct >= m) {
+          firedMilestones[m] = true;
+          gaEvent('scroll_depth', { percent_scrolled: m });
+        }
+      });
+    }, { passive: true });
+
+    // -------------------------------------------------------
+    // 5. Page engagement time (fires after 10s, 30s, 60s)
+    // -------------------------------------------------------
+    var engagementThresholds = [10, 30, 60];
+    var firedThresholds = {};
+
+    engagementThresholds.forEach(function (seconds) {
+      setTimeout(function () {
+        if (!firedThresholds[seconds]) {
+          firedThresholds[seconds] = true;
+          gaEvent('page_engagement', { seconds_on_page: seconds });
+        }
+      }, seconds * 1000);
+    });
+
+  })();
+</script>
 </body>
 </html>
