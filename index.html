@@ -15,6 +15,15 @@
         gtag('config', 'G-8WGNZWHQKE', { send_page_view: true });
       </script>
 
+      <!-- Microsoft Clarity -->
+      <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "xjfi4v1ak9");
+      </script>
+
 
 <meta name="title" content="Sidhya Tikku" />
 <meta name="description" content="Sidhya Tikku is a NYC-based award-winning Creative Technologist. He graduated from Parsons School of Design with a degree in Communication Design and also attended Cornell Tech. He likes to be the bridge that connects technical side with the creative side. His work often involves Product Design, Product Management, Photography, and Design research." />
@@ -145,44 +154,52 @@
 
 <script>
   (function () {
-    var GA_ID = 'G-8WGNZWHQKE';
 
-    // Helper to fire a GA4 event safely
-    function gaEvent(eventName, params) {
+    // ----------------------------------------------------------
+    // Unified event helper — fires to both GA4 and Clarity
+    // ----------------------------------------------------------
+    function track(eventName, params) {
+      // GA4
       if (typeof gtag === 'function') {
-        gtag('event', eventName, params);
+        gtag('event', eventName, params || {});
+      }
+      // Microsoft Clarity custom event (key + optional value string)
+      if (typeof clarity === 'function') {
+        var value = params ? Object.values(params).join(' | ') : '';
+        clarity('event', eventName);
+        // Also set as a custom tag so it appears in Clarity filters
+        clarity('set', eventName, value || 'true');
       }
     }
 
-    // -------------------------------------------------------
+    // ----------------------------------------------------------
     // 1. Outbound link clicks (Portfolio, Photography, AI, LinkedIn, X)
-    // -------------------------------------------------------
+    // ----------------------------------------------------------
     var outboundLinks = document.querySelectorAll('.links a[href]');
     outboundLinks.forEach(function (link) {
       link.addEventListener('click', function () {
-        gaEvent('outbound_link_click', {
+        var params = {
           link_text: link.textContent.trim(),
           link_url: link.href,
           link_domain: new URL(link.href).hostname
-        });
+        };
+        track('outbound_link_click', params);
       });
     });
 
-    // -------------------------------------------------------
+    // ----------------------------------------------------------
     // 2. Email link click
-    // -------------------------------------------------------
+    // ----------------------------------------------------------
     var emailLink = document.querySelector('a[href^="mailto:"]');
     if (emailLink) {
       emailLink.addEventListener('click', function () {
-        gaEvent('email_click', {
-          email_address: emailLink.href.replace('mailto:', '')
-        });
+        track('email_click', { email_address: emailLink.href.replace('mailto:', '') });
       });
     }
 
-    // -------------------------------------------------------
-    // 3. Section visibility (WORK, EDUCATION, AWARDS)
-    // -------------------------------------------------------
+    // ----------------------------------------------------------
+    // 3. Section visibility — WORK, EDUCATION, AWARDS
+    // ----------------------------------------------------------
     var sections = [
       { el: document.querySelector('.section1'), name: 'work' },
       { el: document.querySelector('.section2'), name: 'education' },
@@ -195,7 +212,7 @@
           if (entry.isIntersecting) {
             var section = sections.find(function (s) { return s.el === entry.target; });
             if (section) {
-              gaEvent('section_view', { section_name: section.name });
+              track('section_view', { section_name: section.name });
               sectionObserver.unobserve(entry.target);
             }
           }
@@ -205,11 +222,30 @@
       sections.forEach(function (s) {
         if (s.el) sectionObserver.observe(s.el);
       });
+
+      // ----------------------------------------------------------
+      // 4. Individual item visibility — each work/education/award entry
+      // ----------------------------------------------------------
+      var itemObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var el = entry.target;
+            var label = el.querySelector('.title, .title2');
+            var itemName = label ? label.textContent.trim() : el.className;
+            track('item_view', { item_name: itemName });
+            itemObserver.unobserve(el);
+          }
+        });
+      }, { threshold: 0.5 });
+
+      document.querySelectorAll('.item, .title2').forEach(function (el) {
+        itemObserver.observe(el);
+      });
     }
 
-    // -------------------------------------------------------
-    // 4. Scroll depth milestones (25%, 50%, 75%, 100%)
-    // -------------------------------------------------------
+    // ----------------------------------------------------------
+    // 5. Scroll depth milestones — 25 / 50 / 75 / 100 %
+    // ----------------------------------------------------------
     var scrollMilestones = [25, 50, 75, 100];
     var firedMilestones = {};
 
@@ -222,24 +258,69 @@
       scrollMilestones.forEach(function (m) {
         if (!firedMilestones[m] && pct >= m) {
           firedMilestones[m] = true;
-          gaEvent('scroll_depth', { percent_scrolled: m });
+          track('scroll_depth', { percent_scrolled: m });
         }
       });
     }, { passive: true });
 
-    // -------------------------------------------------------
-    // 5. Page engagement time (fires after 10s, 30s, 60s)
-    // -------------------------------------------------------
-    var engagementThresholds = [10, 30, 60];
+    // ----------------------------------------------------------
+    // 6. Page engagement time — 10 s / 30 s / 60 s / 120 s
+    // ----------------------------------------------------------
+    var engagementThresholds = [10, 30, 60, 120];
     var firedThresholds = {};
 
     engagementThresholds.forEach(function (seconds) {
       setTimeout(function () {
         if (!firedThresholds[seconds]) {
           firedThresholds[seconds] = true;
-          gaEvent('page_engagement', { seconds_on_page: seconds });
+          track('page_engagement', { seconds_on_page: seconds });
         }
       }, seconds * 1000);
+    });
+
+    // ----------------------------------------------------------
+    // 7. Link hover intent (pointer enters for >500 ms)
+    // ----------------------------------------------------------
+    var allLinks = document.querySelectorAll('a[href]');
+    allLinks.forEach(function (link) {
+      var hoverTimer;
+      link.addEventListener('mouseenter', function () {
+        hoverTimer = setTimeout(function () {
+          track('link_hover_intent', {
+            link_text: link.textContent.trim(),
+            link_url: link.href
+          });
+        }, 500);
+      });
+      link.addEventListener('mouseleave', function () {
+        clearTimeout(hoverTimer);
+      });
+    });
+
+    // ----------------------------------------------------------
+    // 8. Text copy detection
+    // ----------------------------------------------------------
+    document.addEventListener('copy', function () {
+      var selected = window.getSelection ? window.getSelection().toString().trim() : '';
+      if (selected) {
+        track('text_copy', { copied_text: selected.substring(0, 100) });
+      }
+    });
+
+    // ----------------------------------------------------------
+    // 9. Page visibility — tab focus / blur
+    // ----------------------------------------------------------
+    document.addEventListener('visibilitychange', function () {
+      track('page_visibility', { state: document.visibilityState });
+    });
+
+    // ----------------------------------------------------------
+    // 10. Page unload — session end
+    // ----------------------------------------------------------
+    window.addEventListener('pagehide', function () {
+      track('session_end', {
+        time_on_page: Math.round(performance.now() / 1000)
+      });
     });
 
   })();
