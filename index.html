@@ -12,7 +12,27 @@
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', 'G-8WGNZWHQKE', { send_page_view: true });
+
+        // GA4 config — enhanced measurement + page_view
+        gtag('config', 'G-8WGNZWHQKE', {
+          send_page_view: true,
+          page_title: document.title,
+          page_location: window.location.href,
+          // Enhanced measurement: scrolls, outbound clicks, site search, video, file downloads
+          enhanced_measurement_settings: {
+            scroll_events_enabled: true,
+            outbound_click_events_enabled: true,
+            file_download_events_enabled: true
+          }
+        });
+
+        // Set global user properties visible across all events
+        gtag('set', 'user_properties', {
+          site_language: navigator.language || 'unknown',
+          screen_resolution: window.screen.width + 'x' + window.screen.height,
+          color_scheme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+          device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
+        });
       </script>
 
       <!-- Microsoft Clarity -->
@@ -154,99 +174,131 @@
 
 <script>
   (function () {
+    var GA_ID = 'G-8WGNZWHQKE';
+    var pageStartTime = Date.now();
 
-    // ----------------------------------------------------------
-    // Unified event helper — fires to both GA4 and Clarity
-    // ----------------------------------------------------------
+    // ------------------------------------------------------------------
+    // Unified event helper — GA4 (gtag) + Microsoft Clarity
+    // GA4 reserved param names are used where applicable.
+    // All events include send_to to guarantee the right property.
+    // ------------------------------------------------------------------
     function track(eventName, params) {
-      // GA4
+      var gaParams = Object.assign({}, params || {}, { send_to: GA_ID });
+
       if (typeof gtag === 'function') {
-        gtag('event', eventName, params || {});
+        gtag('event', eventName, gaParams);
       }
-      // Microsoft Clarity custom event (key + optional value string)
+
       if (typeof clarity === 'function') {
-        var value = params ? Object.values(params).join(' | ') : '';
         clarity('event', eventName);
-        // Also set as a custom tag so it appears in Clarity filters
-        clarity('set', eventName, value || 'true');
+        if (params) {
+          Object.keys(params).forEach(function (key) {
+            clarity('set', key, String(params[key]));
+          });
+        }
       }
     }
 
-    // ----------------------------------------------------------
-    // 1. Outbound link clicks (Portfolio, Photography, AI, LinkedIn, X)
-    // ----------------------------------------------------------
-    var outboundLinks = document.querySelectorAll('.links a[href]');
-    outboundLinks.forEach(function (link) {
+    // ------------------------------------------------------------------
+    // 1. Outbound link clicks — GA4 recommended event: "click"
+    //    Uses GA4 reserved params: link_text, link_url, link_domain, outbound
+    // ------------------------------------------------------------------
+    document.querySelectorAll('.links a[href]').forEach(function (link) {
       link.addEventListener('click', function () {
-        var params = {
+        track('click', {
           link_text: link.textContent.trim(),
           link_url: link.href,
-          link_domain: new URL(link.href).hostname
-        };
-        track('outbound_link_click', params);
+          link_domain: new URL(link.href).hostname,
+          outbound: true,
+          link_id: link.id || link.textContent.trim().toLowerCase().replace(/\s+/g, '_')
+        });
       });
     });
 
-    // ----------------------------------------------------------
-    // 2. Email link click
-    // ----------------------------------------------------------
+    // ------------------------------------------------------------------
+    // 2. Email click — GA4 recommended event: "generate_lead"
+    //    Also fires "click" with method: "email"
+    // ------------------------------------------------------------------
     var emailLink = document.querySelector('a[href^="mailto:"]');
     if (emailLink) {
       emailLink.addEventListener('click', function () {
-        track('email_click', { email_address: emailLink.href.replace('mailto:', '') });
+        track('generate_lead', { method: 'email' });
+        track('click', {
+          link_text: emailLink.textContent.trim(),
+          link_url: emailLink.href,
+          link_domain: 'mailto',
+          outbound: false,
+          method: 'email'
+        });
       });
     }
 
-    // ----------------------------------------------------------
+    // ------------------------------------------------------------------
     // 3. Section visibility — WORK, EDUCATION, AWARDS
-    // ----------------------------------------------------------
+    //    GA4 recommended event: "view_item_list" for content sections
+    // ------------------------------------------------------------------
     var sections = [
-      { el: document.querySelector('.section1'), name: 'work' },
-      { el: document.querySelector('.section2'), name: 'education' },
-      { el: document.querySelector('.section3'), name: 'awards' }
+      { el: document.querySelector('.section1'), name: 'work',      list_id: 'section_work' },
+      { el: document.querySelector('.section2'), name: 'education', list_id: 'section_education' },
+      { el: document.querySelector('.section3'), name: 'awards',    list_id: 'section_awards' }
     ];
 
     if ('IntersectionObserver' in window) {
       var sectionObserver = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
-            var section = sections.find(function (s) { return s.el === entry.target; });
-            if (section) {
-              track('section_view', { section_name: section.name });
+            var s = sections.find(function (x) { return x.el === entry.target; });
+            if (s) {
+              track('view_item_list', { item_list_id: s.list_id, item_list_name: s.name });
               sectionObserver.unobserve(entry.target);
             }
           }
         });
       }, { threshold: 0.3 });
 
-      sections.forEach(function (s) {
-        if (s.el) sectionObserver.observe(s.el);
-      });
+      sections.forEach(function (s) { if (s.el) sectionObserver.observe(s.el); });
 
-      // ----------------------------------------------------------
-      // 4. Individual item visibility — each work/education/award entry
-      // ----------------------------------------------------------
+      // ------------------------------------------------------------------
+      // 4. Individual item visibility — each work / education / award entry
+      //    GA4 recommended event: "view_item"
+      // ------------------------------------------------------------------
+      var itemIndex = 0;
       var itemObserver = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
             var el = entry.target;
-            var label = el.querySelector('.title, .title2');
-            var itemName = label ? label.textContent.trim() : el.className;
-            track('item_view', { item_name: itemName });
+            var titleEl = el.classList.contains('title2')
+              ? el
+              : el.querySelector('.title');
+            var itemName = titleEl ? titleEl.textContent.trim() : el.className;
+            var parentSection = el.closest('.section1, .section2, .section3');
+            var sectionName = parentSection
+              ? (parentSection.classList.contains('section1') ? 'work'
+                : parentSection.classList.contains('section2') ? 'education' : 'awards')
+              : 'unknown';
+
+            track('view_item', {
+              item_name: itemName,
+              item_category: sectionName,
+              item_list_name: 'section_' + sectionName,
+              index: el.dataset.trackIndex || 0
+            });
             itemObserver.unobserve(el);
           }
         });
       }, { threshold: 0.5 });
 
       document.querySelectorAll('.item, .title2').forEach(function (el) {
+        el.dataset.trackIndex = itemIndex++;
         itemObserver.observe(el);
       });
     }
 
-    // ----------------------------------------------------------
-    // 5. Scroll depth milestones — 25 / 50 / 75 / 100 %
-    // ----------------------------------------------------------
-    var scrollMilestones = [25, 50, 75, 100];
+    // ------------------------------------------------------------------
+    // 5. Scroll depth — 25 / 50 / 75 / 90 / 100 %
+    //    GA4 recommended event: "scroll" (enhanced measurement also fires at 90%)
+    // ------------------------------------------------------------------
+    var scrollMilestones = [25, 50, 75, 90, 100];
     var firedMilestones = {};
 
     window.addEventListener('scroll', function () {
@@ -258,70 +310,131 @@
       scrollMilestones.forEach(function (m) {
         if (!firedMilestones[m] && pct >= m) {
           firedMilestones[m] = true;
-          track('scroll_depth', { percent_scrolled: m });
+          // GA4 native scroll event uses percent_scrolled
+          track('scroll', { percent_scrolled: m });
         }
       });
     }, { passive: true });
 
-    // ----------------------------------------------------------
-    // 6. Page engagement time — 10 s / 30 s / 60 s / 120 s
-    // ----------------------------------------------------------
-    var engagementThresholds = [10, 30, 60, 120];
-    var firedThresholds = {};
+    // ------------------------------------------------------------------
+    // 6. Engagement time milestones — 10 s / 30 s / 60 s / 120 s / 300 s
+    //    GA4 recommended event: "user_engagement"
+    // ------------------------------------------------------------------
+    var engagementThresholds = [10, 30, 60, 120, 300];
+    var firedEngagement = {};
 
-    engagementThresholds.forEach(function (seconds) {
+    engagementThresholds.forEach(function (s) {
       setTimeout(function () {
-        if (!firedThresholds[seconds]) {
-          firedThresholds[seconds] = true;
-          track('page_engagement', { seconds_on_page: seconds });
+        if (!firedEngagement[s]) {
+          firedEngagement[s] = true;
+          track('user_engagement', {
+            engagement_time_msec: s * 1000,
+            seconds_on_page: s
+          });
         }
-      }, seconds * 1000);
+      }, s * 1000);
     });
 
-    // ----------------------------------------------------------
-    // 7. Link hover intent (pointer enters for >500 ms)
-    // ----------------------------------------------------------
-    var allLinks = document.querySelectorAll('a[href]');
-    allLinks.forEach(function (link) {
+    // ------------------------------------------------------------------
+    // 7. Link hover intent — pointer dwells >500 ms before click
+    //    Custom event: "link_hover_intent"
+    // ------------------------------------------------------------------
+    document.querySelectorAll('a[href]').forEach(function (link) {
       var hoverTimer;
       link.addEventListener('mouseenter', function () {
         hoverTimer = setTimeout(function () {
           track('link_hover_intent', {
             link_text: link.textContent.trim(),
-            link_url: link.href
+            link_url: link.href,
+            link_domain: link.hostname || 'mailto'
           });
         }, 500);
       });
-      link.addEventListener('mouseleave', function () {
-        clearTimeout(hoverTimer);
-      });
+      link.addEventListener('mouseleave', function () { clearTimeout(hoverTimer); });
     });
 
-    // ----------------------------------------------------------
-    // 8. Text copy detection
-    // ----------------------------------------------------------
+    // ------------------------------------------------------------------
+    // 8. Text copy — custom event: "select_content" (GA4 recommended)
+    // ------------------------------------------------------------------
     document.addEventListener('copy', function () {
       var selected = window.getSelection ? window.getSelection().toString().trim() : '';
       if (selected) {
-        track('text_copy', { copied_text: selected.substring(0, 100) });
+        track('select_content', {
+          content_type: 'text',
+          content_id: selected.substring(0, 100)
+        });
       }
     });
 
-    // ----------------------------------------------------------
-    // 9. Page visibility — tab focus / blur
-    // ----------------------------------------------------------
+    // ------------------------------------------------------------------
+    // 9. Page visibility — tab hide / show
+    //    Custom event: "page_hide" / "page_show"
+    // ------------------------------------------------------------------
     document.addEventListener('visibilitychange', function () {
-      track('page_visibility', { state: document.visibilityState });
-    });
-
-    // ----------------------------------------------------------
-    // 10. Page unload — session end
-    // ----------------------------------------------------------
-    window.addEventListener('pagehide', function () {
-      track('session_end', {
-        time_on_page: Math.round(performance.now() / 1000)
+      var state = document.visibilityState; // 'visible' | 'hidden'
+      track(state === 'hidden' ? 'page_hide' : 'page_show', {
+        time_on_page_sec: Math.round((Date.now() - pageStartTime) / 1000)
       });
     });
+
+    // ------------------------------------------------------------------
+    // 10. Session end — fires on page unload using beacon transport
+    //     so the hit is not dropped when the tab closes.
+    //     GA4 recommended event: "session_end" (custom)
+    // ------------------------------------------------------------------
+    window.addEventListener('pagehide', function () {
+      var totalSec = Math.round((Date.now() - pageStartTime) / 1000);
+      if (typeof gtag === 'function') {
+        gtag('event', 'session_end', {
+          send_to: GA_ID,
+          transport_type: 'beacon',
+          time_on_page_sec: totalSec,
+          scroll_depth_max: (function () {
+            var max = 0;
+            Object.keys(firedMilestones).forEach(function (m) { if (+m > max) max = +m; });
+            return max;
+          })()
+        });
+      }
+      if (typeof clarity === 'function') {
+        clarity('event', 'session_end');
+        clarity('set', 'time_on_page_sec', String(totalSec));
+      }
+    });
+
+    // ------------------------------------------------------------------
+    // 11. First interaction — fires once on the very first click anywhere
+    //     GA4 recommended event: "first_visit" equivalent for SPA-style tracking
+    // ------------------------------------------------------------------
+    var firstInteractionFired = false;
+    document.addEventListener('click', function (e) {
+      if (!firstInteractionFired) {
+        firstInteractionFired = true;
+        var target = e.target.closest('a') || e.target;
+        track('first_interaction', {
+          element_tag: target.tagName.toLowerCase(),
+          element_text: (target.textContent || '').trim().substring(0, 50)
+        });
+      }
+    }, { once: true });
+
+    // ------------------------------------------------------------------
+    // 12. Dark / light mode preference — fires once on load
+    // ------------------------------------------------------------------
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    track('color_scheme_preference', { color_scheme: prefersDark ? 'dark' : 'light' });
+
+    // ------------------------------------------------------------------
+    // 13. Connection quality — fires once on load if API is available
+    // ------------------------------------------------------------------
+    var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (conn) {
+      track('connection_info', {
+        effective_type: conn.effectiveType || 'unknown',
+        downlink: conn.downlink || 0,
+        save_data: conn.saveData ? 'true' : 'false'
+      });
+    }
 
   })();
 </script>
