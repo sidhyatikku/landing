@@ -74,6 +74,7 @@
 
     .links a:hover {
         text-decoration: underline;
+        color: #513f2d;
     }
 
     .subtext a {
@@ -165,8 +166,21 @@
       min-width: 200px;
     }
 
-    .title2 {
+    .title a {
+      width: 20vw;
+      font-weight: 800;
+      text-decoration: none;
+      color: #3D3D3D;
+    }
+
+    .title a:hover, .title2 a:hover {
+      color: #6e5f5f;
+    }
+
+    .title2, .title2 a {
       width: 50vw;
+      color: #3D3D3D;
+      text-decoration: none;
       font-weight: 600;
     }
 
